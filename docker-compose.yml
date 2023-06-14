@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - ./apache/htdocs:/usr/local/apache2/htdocs/
+
+  apache:
+    image: httpd:latest
+    restart: always
+    container_name: httpd
+    ports:
+      - "80:80"
+    volumes:
+      - ./apache/htdocs:/usr/local/apache2/htdocs/
+      - ./apache/conf:/usr/local/apache2/conf/
+    networks:
+      - jenkins_network
+
+  nginx:
+    image: nginx:latest
+    restart: always
+    container_name: nginx
+    ports:
+      - "443:443"
+    networks:
+      - jenkins_network
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d/
+      - ./nginx/certs:/etc/nginx/certs/
+      - ./nginx/html:/usr/share/nginx/html/
+
+
+networks:
+  jenkins_network:
+
+volumes:
+  jenkins_home:
+
+
